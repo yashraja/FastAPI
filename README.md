@@ -10,7 +10,8 @@
     3. [Postgres](#db)
     4. [Test Cases](#tests)
     5. [Logging](#logs)
-5. [Reference Materials](#ref)
+5. [Debugging](#debug)
+6. [Reference Materials](#ref)
 
 ## Introduction <a name="introduction"></a>
     This project is created for general purpose learning.
@@ -23,6 +24,7 @@ Python3 + FastAPI + postgres + Docker + Test Cases
 
 ## How to Run <a name="howtorun"></a>
 ```commandline
+    pip install -r .\requirements.txt
     uvicorn main:app --reload // Start this server in main.py path
 ```
 
@@ -81,6 +83,11 @@ ABove pytest command will run the existing tests case scenarios.
    Logging is handled in logger.py file
 ```
 
+## Debugging: <a name="debug"></a>
+
+```text
+   Run main.py in a debug mode and use swagger to trigger the code.
+```
 
 ## References: <a name="ref"></a>
 

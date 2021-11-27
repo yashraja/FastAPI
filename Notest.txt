@@ -10,3 +10,11 @@ python -m pip install fastapi uvicorn
 Need uvicorn to run Fast API -> pip install uvicorn
 
 Run URL: http://localhost:8000/
+
+
+requirements.txt file
+    -> pip freeze > requirements.txt
+        Above command will create the requirements.txt file based on all dependencies
+        -- You dont need all of the formed in your requirements.txt file tho
+    -> pip install -r .\requirements.txt
+        Above command to install all modules required for this project

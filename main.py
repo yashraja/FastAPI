@@ -1,6 +1,7 @@
 """
     Main class is used to handle requests from endpoints(swagger/curl)
 """
+import uvicorn
 from fastapi import FastAPI, Header, HTTPException
 
 import logger
@@ -69,3 +70,7 @@ def validate_security_token(token: str):
         raise HTTPException(status_code=400, detail="Invalid X-Token header")
     logger.debug("Security token is valid")
     return None
+
+
+if __name__ == '__main__':
+    uvicorn.run(app, host="0.0.0.0", port=8000)
