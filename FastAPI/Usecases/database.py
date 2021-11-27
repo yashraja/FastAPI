@@ -1,3 +1,7 @@
+"""
+    All the database operations are handled here
+"""
+
 import json
 from pathlib import Path
 
@@ -7,14 +11,14 @@ ITEM_DB_FILE_NAME = "item_db.json"
 logger = logger.logrs
 
 
-def check_file_exists():
+def db_check_file_exists():
     logger.info("Working on check_file_exists")
     my_file = Path(ITEM_DB_FILE_NAME)
     logger.debug("Results on file exists {}".format(my_file.is_file()))
     return my_file.is_file()
 
 
-def write_data(items_data):
+def db_write_data(items_data):
     logger.info("Working on write_data")
     # Writing to sample.json
     with open(ITEM_DB_FILE_NAME, "w") as outfile:
@@ -23,12 +27,13 @@ def write_data(items_data):
     logger.info("Data inserted in database file")
 
 
-def get_data():
+def db_get_data():
     logger.info("Working on get_data")
-    if not check_file_exists():
+    if not db_check_file_exists():
         logger.warn("DB File does not exist")
         return {}
     with open(ITEM_DB_FILE_NAME, 'r') as openfile:
+        logger.info("Reading data from DB")
         # Reading from json file
         try:
             item_db_data = json.load(openfile)

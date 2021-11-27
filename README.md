@@ -70,9 +70,10 @@ Info on Postgres
 ```
 
 ### Test Cases <a name="tests"></a>
-```text
-Info on Test Cases
+```commandline
+   pytest -v
 ```
+ABove pytest command will run the existing tests case scenarios.
 
 ### Logging <a name="logs"></a>
 ```text

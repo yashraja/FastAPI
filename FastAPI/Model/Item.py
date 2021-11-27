@@ -1,3 +1,7 @@
+"""
+    This is the model for database
+
+"""
 from typing import Optional
 from pydantic import BaseModel
 

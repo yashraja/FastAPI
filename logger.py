@@ -1,3 +1,7 @@
+"""
+    All the logging specifications are handled in this file
+"""
+
 import logging
 
 LOF_FILE_NAME = "item_log.log"
