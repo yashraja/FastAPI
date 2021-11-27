@@ -1,3 +1,12 @@
 
 # This is just a personal notes
     Anything that I want to keep a note for this will go here.
+
+
+
+Install Fast API:
+python -m pip install fastapi uvicorn
+
+Need uvicorn to run Fast API -> pip install uvicorn
+
+Run URL: http://localhost:8000/
