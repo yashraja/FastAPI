@@ -8,31 +8,37 @@ from pathlib import Path
 import logger as logger
 
 ITEM_DB_FILE_NAME = "item_db.json"
+USER_DB_FILE_NAME = "user_db.json"
 logger = logger.logrs
 
+REF_DB = {
+    "item": ITEM_DB_FILE_NAME,
+    "user": USER_DB_FILE_NAME
+}
 
-def db_check_file_exists():
+
+def db_check_file_exists(db: str = "item"):
     logger.info("Working on check_file_exists")
-    my_file = Path(ITEM_DB_FILE_NAME)
+    my_file = Path(REF_DB[db])
     logger.debug("Results on file exists {}".format(my_file.is_file()))
     return my_file.is_file()
 
 
-def db_write_data(items_data):
+def db_write_data(items_data, db: str = "item"):
     logger.info("Working on write_data")
     # Writing to sample.json
-    with open(ITEM_DB_FILE_NAME, "w") as outfile:
+    with open(REF_DB[db], "w") as outfile:
         logger.info("\n json obj to write : {}".format(items_data))
         outfile.write(json.dumps(items_data, indent=4))
     logger.info("Data inserted in database file")
 
 
-def db_get_data():
+def db_get_data(db: str = "item"):
     logger.info("Working on get_data")
     if not db_check_file_exists():
         logger.warn("DB File does not exist")
         return {}
-    with open(ITEM_DB_FILE_NAME, 'r') as openfile:
+    with open(REF_DB[db], 'r') as openfile:
         logger.info("Reading data from DB")
         # Reading from json file
         try:

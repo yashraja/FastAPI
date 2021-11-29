@@ -12,7 +12,7 @@ logging.basicConfig(
     filename='app.log',
     filemode='w',
     format=LOG_FORMATTER,
-    level=logging.INFO,
+    level=logging.DEBUG,
     datefmt='%Y-%m-%d %H:%M:%S',
 )
 
