@@ -19,7 +19,7 @@
 
 ## Required softwares <a name="requirements"></a>
 ```text
-Python3 + FastAPI + postgres + Docker + Test Cases
+Python3 + FastAPI + JWT + postgres + Docker + Test Cases
 ```
 
 ## How to Run <a name="howtorun"></a>
