@@ -16,4 +16,7 @@ class Item(BaseModel):
                          description="Price of item",
                          gt=0)
     tax: Optional[float] = 1
-    user_name: str = None
+
+
+class Item_inDB(Item):
+    user_name: str

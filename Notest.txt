@@ -9,7 +9,7 @@ python -m pip install fastapi uvicorn
 
 Need uvicorn to run Fast API -> pip install uvicorn
 
-Run URL: http://localhost:8000/
+Run URL: http://localhost:8000/docs#
 
 
 requirements.txt file

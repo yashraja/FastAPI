@@ -4,18 +4,18 @@
 import sys
 
 from fastapi import HTTPException
-from passlib.context import CryptContext
-import bcrypt
+import basehash
 import logger as logger
 
 # Used to import files from parent dir.. path
-from FastAPI.Model.User import User, User_in_DB
+from FastAPI.Model.User import User, User_in_DB, User_Create
 
 sys.path.append('..')
 
 from FastAPI.Usecases.database import db_get_data, db_write_data
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+hash_fn = basehash.base36()
 
 user_db = {}
 logger = logger.logrs
@@ -40,8 +40,7 @@ def user_op_validate_user(username: str, password: str):
     # Verify password
     if validate_password(password, user.hashed_password):
         logger.debug("Validating password")
-        # raise HTTPException(status_code=400, detail="Incorrect password")
-        pass  # Passing for now!
+        raise HTTPException(status_code=400, detail="Incorrect password")
 
     logger.debug("User validation passed!")
     return User(**user_dict)
@@ -50,12 +49,15 @@ def user_op_validate_user(username: str, password: str):
 def get_hashed_password(plain_text_password):
     # Hash a password for the first time
     #   (Using bcrypt, the salt is saved into the hash itself)
-    return pwd_context.hash(plain_text_password)
+    return hash_fn.hash(plain_text_password)
 
 
 def validate_password(plain_text_password, hashed_password):
     # Check hashed password. Using bcrypt, the salt is saved into the hash itself
-    return pwd_context.verify(plain_text_password, hashed_password)
+    logger.debug("user pswd :{}".format(plain_text_password))
+    logger.debug("hash pswd :{}".format(hashed_password))
+    logger.debug("hash now pswd :{}".format(hash_fn.hash(plain_text_password)))
+    return plain_text_password == hash_fn.unhash(hashed_password)
 
 
 def user_op_get_all_data():
@@ -74,15 +76,16 @@ def user_op_get_user_data(user_name: str) -> User:
         return None
 
 
-def user_op_create_new_user(user_data: User_in_DB) -> User:
+def user_op_create_new_user(user_data: User_Create) -> User:
     # Check if User exists
     if user_op_get_user_data(user_data.username):
         raise HTTPException(status_code=400, detail="User already exists")
 
+    logger.debug("create user")
     total_user_data = user_op_get_all_data()
 
     new_user = User_in_DB(username=user_data.username,
-                           hashed_password=get_hashed_password(user_data.hashed_password),
+                           hashed_password=get_hashed_password(user_data.password),
                            fullname=user_data.full_name,
                            email=user_data.email,
                            disabled=user_data.disabled)

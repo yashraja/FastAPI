@@ -1,148 +1,140 @@
-"""
-    Main class is used to handle requests from endpoints(swagger/curl)
-"""
+from datetime import timedelta
+from typing import List, Optional
 
+import logger as logger
 import uvicorn
-from fastapi import Header, HTTPException, FastAPI, Query, Request, Depends
-from fastapi.security import OAuth2PasswordBearer
-from starlette.responses import JSONResponse
 
-import logger
-from FastAPI.Model.Exceptions import TokenException
+# Modules
+from fastapi import FastAPI, Depends
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+
+# Models
+from FastAPI.Model.ResponseMessage import ResponseMessage
 from FastAPI.Model.Item import Item
-from FastAPI.Usecases.Item_operations import op_create_item_code, op_update_item_code, op_delete_item_code, \
-    op_get_all_data, \
-    op_fetch_item_code
+from FastAPI.Model.Token import Token
 
+# Operations
+from FastAPI.Model.User import User, User_Create
+from FastAPI.Usecases.Item_operations import op_get_all_data, op_create_item_code, op_update_item_code, \
+    op_delete_item_code
+from FastAPI.Usecases.user_operations import user_op_validate_user, user_op_create_new_user
 
-# app = FastAPI()
+# Security
+from Security import security_op_security_check, create_jwt_access_token, ACCESS_TOKEN_EXPIRE_MIN
 
-
-# Second way of verifying- using Depends
-# Used for fetch_data_2 for learning purpose
-# This function should be defined before you use it in the code
-#       *This is not working if I keep this def after usage
-async def verify_token_dependency(x_token: str = Header(...)):
-    logger.debug("Validating security token")
-    if x_token != SECURITY_TOKEN:
-        logger.warning("Security token is in-valid")
-        raise TokenException(name="Invalid token")
-    logger.debug("Security token is valid")
-    return None
-
-
-# Adding authentication
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-# Global dependencies
-app = FastAPI(dependencies=[Depends(verify_token_dependency)])
-
-item_data = {}
-SECURITY_TOKEN = "asfafqqdvhq2312@21!"
+app = FastAPI()
 
 # Initiating loggers
 logger = logger.logrs
 
+ITEM_TAG = "item"
+USER_TAG = "user"
+LOGIN_TAG = "login"
 
-# Fetches out all the data present in DB
-@app.get("/", tags=['Items'], description="Fetches without JWT auth, but token")
-async def list_all_data():
-    logger.info("Working on list_all_data")
-
-    return op_get_all_data()
+current_user_name: str = ""
 
 
-# Fetches out all the data present in DB
-@app.get("/deprecate_example", tags=['Items'], deprecated=True,
-         summary="Just an example place holder for deprecate functionality")
-async def list_all_data(x_token: str = Header(...)):
-    logger.info("Working on list_all_data")
-    validate_security_token(x_token)
-    return op_get_all_data()
+# authenticate token
+def authenticate_user(token: str = Depends(oauth2_scheme)):
+    logger.info("Working on authenticate_user")
+    user = security_op_security_check(token)
+    logger.info("User is : {}".format(user))
+    logger.debug("User type : {}".format(type(user)))
+    global current_user_name
+    current_user_name = user.username
+    return user
 
 
-# Fetches a particular Item data from DB
-# Query(...)  ->  ... means *required
-# tags is used to organize categories for api's in swagger
-@app.get("/items/{name}",
-         response_model=Item,
-         tags=['Items', 'List'],
-         summary="Fetches a particular data from Item db",
-         description="All the description from app.get will show in swagger for user friendly messages")
-async def fetch_data(name: str,
-                     q: str = Query(...,
-                                    min_length=3,
-                                    max_length=10,
-                                    title="Title str",
-                                    description="just a dummy- learning purpose",
-                                    alias="alias_name_for_q"),
-                     x_token: str = Header(...)):
-    logger.info("Working on fetch_data : {}".format(name))
-    # just for learning purpose
-    print("Q is {}".format(q))
-    validate_security_token(x_token)
-    return op_fetch_item_code(name)
+@app.post("/token", tags=[LOGIN_TAG],
+          response_model=Token)
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    logger.info("Working on authenticate_user")
+    user = user_op_validate_user(form_data.username, form_data.password)
 
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MIN)
 
-# Creates a new Item in DB
-@app.post("/items/create", response_model=Item, tags=['Items', 'List'])
-async def create_item(item: Item,
-                      x_token: str = Header(...),
-                      ):
-    logger.info("Working on create_item {}".format(item.name))
-    validate_security_token(x_token)
-    return op_create_item_code(item)
-
-
-# Updates/Create Iteam in DB
-@app.post("/items/update", tags=['Items'])
-async def update(item: Item,
-                 x_token: str = Header(...)):
-    logger.info("Working on update Item {}".format(item.name))
-    validate_security_token(x_token)
-    return op_update_item_code(item)
-
-
-# Deletes a particular Item data if exists
-@app.delete("/items/delete/{name}", tags=['Items'])
-async def delete_item(name: str,
-                      x_token: str = Header(...)):
-    logger.info("Working on delete_item {}".format(name))
-    validate_security_token(x_token)
-    if op_delete_item_code(name):
-        result = "Item: {} is deleted.".format(name)
-    else:
-        result = "Item: {} does not exist.".format(name)
-    return result
-
-
-# Fetches a particular Item data from DB
-# Query can be used to restrict/validate data from user in FrontEnd
-@app.get("/items/id/{id}", tags=['Items'],
-         dependencies=[Depends(verify_token_dependency)])
-async def fetch_data_2(id: int):
-    logger.info("Working on fetch_data : {}".format(id))
-    # just for learning purpose
-
-    return id
-
-
-def validate_security_token(token: str):
-    logger.debug("Validating security token")
-    if token != SECURITY_TOKEN:
-        logger.warning("Security token is in-valid")
-        raise TokenException(name="Invalid token")
-    logger.debug("Security token is valid")
-    return None
-
-
-@app.exception_handler(TokenException)
-async def unicorn_exception_handler(request: Request, exc: TokenException):
-    return JSONResponse(
-        status_code=400,
-        content={"message": f"Oops! {exc.name} did something."},
+    access_token = create_jwt_access_token(
+        data={"sub": user.username},
+        expire_time=access_token_expires
     )
+    return {"access_token": access_token, "token_type": "Bearer"}
 
 
-if __name__ == '__main__':
+@app.post("/users/create/",
+          tags=[USER_TAG],
+          description="Create a new User",
+          response_model=User,
+          dependencies=[Depends(authenticate_user)])
+async def create_user_data(user_data: User_Create):
+    logger.info("Working on create_user_data")
+    user: User = user_op_create_new_user(user_data)
+    return user
+
+
+@app.get("/items/",
+         tags=[ITEM_TAG],
+         description="Get an item based on item name",
+         response_model=ResponseMessage)
+async def get_all_items(item_name: Optional[str] = None, dummy: str = Depends(authenticate_user)):
+    logger.info("Working on get_all_items")
+    item_list: List[Item] = []
+    all_item_data = op_get_all_data(item_name)
+    logger.debug("Print all data: {}".format(all_item_data))
+
+    return_data: ResponseMessage = ResponseMessage()
+
+    # Return None when there is no data available for this req
+    if not all_item_data:
+        return_data.meta = ""
+        return_data.response_data = []
+        return_data.message = "No data for this item"
+        return return_data.__dict__
+    if item_name:
+        return_data.meta = ""
+        return_data.response_data = [all_item_data]
+        return_data.message = "Successfully retrieved data for this items"
+        return return_data.__dict__
+
+    for key, val in all_item_data.items():
+        logger.debug("Here")
+        item_list.append(val)
+
+    return_data.meta = ""
+    return_data.response_data = item_list
+    return_data.message = "Successfully retrieved data for all items"
+
+    return return_data.__dict__
+
+
+@app.post("/items/create/",
+          tags=[ITEM_TAG],
+          description="Create new Item",
+          dependencies=[Depends(authenticate_user)],
+          response_model=Item
+          )
+async def create_items(item_data: Item):
+    logger.info("Working on create_items")
+    return op_create_item_code(item_data, current_user_name)
+
+
+@app.post("/items/update/",
+          tags=[ITEM_TAG],
+          description="Update an Item",
+          dependencies=[Depends(authenticate_user)]
+          )
+async def update_item(item_data: Item):
+    logger.info("Working on update_item")
+    return op_update_item_code(item_data, current_user_name)
+
+
+@app.delete("/items/delete/",
+            tags=[ITEM_TAG],
+            dependencies=[Depends(authenticate_user)])
+async def delete_item(item_name: str):
+    logger.info("Working on delete_item")
+    return op_delete_item_code(item_name)
+
+
+if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

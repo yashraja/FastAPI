@@ -33,7 +33,7 @@ Python3 + FastAPI + JWT + postgres + Docker + Test Cases
 | S.No  | Module | Description | Branch | Status |
 | ----- | ------ | ------ | ------ | ------ |
 | 1.  | Docker  | Setup Docker File | Docker-101 | TBD |
-| 2.  | Fast API  | Setup code for Fast API | FastAPI-102 | TBD |
+| 2.  | Fast API + JWT  | Setup code for Fast API + JWT | FastAPI-102 | TBD |
 | 3.  | Postgres  | Add tables to database | Postgres-103 | TBD |
 
 ### Docker <a name="docker"></a>
@@ -94,4 +94,6 @@ ABove pytest command will run the existing tests case scenarios.
 Dev: https://realpython.com/fastapi-python-web-apis/
 
 Testing: https://fastapi.tiangolo.com/tutorial/testing/
+
+ALL: https://testdriven.io/blog/fastapi-crud/
 

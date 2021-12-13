@@ -1,30 +1,9 @@
 {
-    "johndoe": {
-        "username": "johndoe",
-        "full_name": "tmp 0",
-        "email": "tmp@tmp.com",
-        "disabled": false,
-        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW"
-    },
-    "tmp2": {
-        "username": "tmp2",
-        "full_name": "tmp 2",
-        "email": "tmp2@tmp.com",
-        "disabled": true,
-        "hashed_password": "tmp2secret"
-    },
     "aaa": {
         "username": "aaa",
-        "hashed_password": "$2b$12$LRWWtps5tVeZ8aA.OEFmaupp3tHgXyIXaB/ARRxUwyv3kk1xWoxk6",
         "full_name": null,
-        "email": "string",
-        "disabled": false
-    },
-    "string": {
-        "username": "string",
-        "full_name": null,
-        "email": "string",
-        "disabled": true,
-        "hashed_password": "$2b$12$Ms0fNmnBJNhxkNxV8NMUh.uPXx3/Yvfh3AzkwIEZR4WiuCRSv9tAq"
+        "email": "aaa@gmail.com",
+        "disabled": false,
+        "hashed_password": "LNWB8X"
     }
 }
